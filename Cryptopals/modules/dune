@@ -1,0 +1,3 @@
+(executable
+  (name hexcraft)
+  (libraries stdlib core))
