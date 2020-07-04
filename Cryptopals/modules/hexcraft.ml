@@ -1,5 +1,5 @@
 (* Generate a hex value from a char. *)
-(* #require "core,iter";; *)
+(* #require "iter";; *)
 
 module HexCraft =
   struct
@@ -24,6 +24,13 @@ module HexCraft =
           | i when i >= 0 && i <= 9 -> Stdlib.Char.chr (i+48)
           | i when i >= 10 && i <= 15 -> Stdlib.Char.chr (i+87)
           | _  -> Stdlib.Char.chr i
+
+        let i2hxch lst =
+          Iter.(of_list lst |> map (fun x -> int2hexchar x) |> to_list);;
+
+        let hxch2i lst =
+          Iter.(of_list lst |> map (fun x -> hexchar2int x) |> to_list);;
+
 
         let cram a b = (a lsl 4) lxor b
 
