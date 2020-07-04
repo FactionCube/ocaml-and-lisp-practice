@@ -3,8 +3,6 @@
 
 module HexCraft =
   struct
-        exception Bad_input
-
         let rec pairs l =
         match l with
           | [] -> []
@@ -30,7 +28,6 @@ module HexCraft =
 
         let hxch2i lst =
           Iter.(of_list lst |> map (fun x -> hexchar2int x) |> to_list);;
-
 
         let cram a b = (a lsl 4) lxor b
 
