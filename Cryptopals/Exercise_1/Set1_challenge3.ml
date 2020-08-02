@@ -4,6 +4,7 @@
  *)
 
 open HexCraft
+open Core
 
 let raw = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 ;;
@@ -30,6 +31,14 @@ let alst = Iter.(of_list nxt |> map (fun c -> int2hexchar c ) |> to_list) ;;
 Iter.(of_list nxt |> map (fun c -> c lxor 0x58) |> map (fun c -> int2hexchar c ) |> to_str) ;;
 (* - : string = "Cooking MC's like a pound of bacon"  *)
 
+
+let common_chars = Core.String.to_list "ETAOIN SHRDLU";;
+
+
+let rec often_char input frequents cnt = 
+match frequents with
+| [] -> cnt
+| h::t -> often_char input t (cnt + (Core.String.count input ~f:(fun c -> ((Stdlib.Char.uppercase_ascii c) = h)) ))
 ;;
 
 
