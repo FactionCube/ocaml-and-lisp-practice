@@ -28,7 +28,7 @@ let alst = Iter.(of_list nxt |> map (fun c -> int2hexchar c ) |> to_list) ;;
    'x'; ':'; '9'; ';'; '7'; '6']
 *)
 
-Iter.(of_list nxt |> map (fun c -> c lxor 0x58) |> map (fun c -> int2hexchar c ) |> to_str) ;;
+let ans = Iter.(of_list nxt |> map (fun c -> c lxor 0x58) |> map (fun c -> int2hexchar c ) |> to_str) ;;
 (* - : string = "Cooking MC's like a pound of bacon"  *)
 
 
@@ -40,5 +40,8 @@ match frequents with
 | [] -> cnt
 | h::t -> often_char input t (cnt + (Core.String.count input ~f:(fun c -> ((Stdlib.Char.uppercase_ascii c) = h)) ))
 ;;
+
+let ans_cnt = often_char ans common_chars 0;;
+
 
 
