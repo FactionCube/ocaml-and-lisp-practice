@@ -42,3 +42,16 @@ let ans = Base64.encode binary;;
             Ok "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"  *)
 
 
+(* Here's an alternative solution using Xavier Leroy's Cryptokit.
+ * #require "cryptokit";;
+*)
+open Cryptokit
+
+let plain = transform_string ( Hexa.decode() ) str
+(* val plain : string = "I'm killing your brain like a poisonous mushroom" *)
+
+let base64 = transform_string  ( Cryptokit.Base64.encode_compact() ) plain;;
+(* val base64 : string =
+  "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
+*)
+;;
