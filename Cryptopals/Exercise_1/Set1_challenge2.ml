@@ -17,5 +17,16 @@ let computeXor sa sb =
   in computeXor a b
 
 (* val ans : string = "746865206b696420646f6e277420706c6179"  *)
-;;
 
+(* Alternative Cryptokit solution. *)
+open Cryptokit
+
+let hex s = transform_string (Hexa.decode()) s
+let hexbytes s = Bytes.of_string (hex s)
+let tohex s = transform_string (Hexa.encode()) s
+
+let hex_a = hexbytes a and hex_b = hexbytes b in
+xor_bytes hex_a 0 hex_b 0 18; 
+
+let ans = tohex (Bytes.to_string hex_b) in ans
+;;
