@@ -43,5 +43,15 @@ match frequents with
 
 let ans_cnt = often_char ans common_chars 0;;
 
+(* Cryptokit solution *)
+open Cryptokit
+;;
 
+let hex s = transform_string (Hexa.decode()) s
+let hexbytes s = Bytes.of_string (hex s)
+;;
 
+let xorme = Bytes.make 34 'X' in
+xor_bytes (hexbytes raw) 0 xorme 0 34; 
+Printf.printf "%s\n" (Bytes.to_string xorme)
+;;
