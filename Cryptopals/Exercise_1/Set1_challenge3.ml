@@ -1,10 +1,11 @@
 (* Challenge 3 - Single Byte XOR.  
- * I should update this to scan a list of cipher bytes,
- * selecting the correct one using frequency counts. 
+ * Scans a list of decrypted bytes, selecting the result which has 
+ * the highest frequency count of common letters. 
  *)
 
 open HexCraft
 open Core
+open Iter
 
 let raw = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 ;;
