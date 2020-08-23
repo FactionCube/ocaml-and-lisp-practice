@@ -97,3 +97,6 @@ done
 (* I'm presuming that the correct plaintext has the most occurrences of our common_chars *)
 let best_guess = get_xor_char raw 0x48 0x68 |> sort_cyxor |> get_maxF
 ;;
+
+(* val best_guess : cyxor list =
+  [{freq = 23; key = 'X'; plain = "Cooking MC's like a pound of bacon"}]   *)
