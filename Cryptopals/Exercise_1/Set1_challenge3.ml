@@ -56,8 +56,9 @@ let hexbytes s = Bytes.of_string (hex s)
 type cyxor ={ freq: int ; key: char ; plain: string }
 ;;
 
-(* Get the list element for the highest frequency count. *)
-let rec get_maxF lst = 
+(* Get the list element for the highest frequency count.  I'm going to place 
+ * each cyxor record into a list. *)
+let rec get_maxF lst:(cyxor list) = 
 match lst with
 | [] -> []
 | a :: [] -> [a]
