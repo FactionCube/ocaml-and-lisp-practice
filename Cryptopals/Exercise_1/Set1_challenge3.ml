@@ -31,17 +31,17 @@ let alst = Iter.(of_list nxt |> map (fun c -> int2hexchar c ) |> to_list) ;;
 let ans = Iter.(of_list nxt |> map (fun c -> c lxor 0x58) |> map (fun c -> int2hexchar c ) |> to_str) ;;
 (* - : string = "Cooking MC's like a pound of bacon"  *)
 
-
 let common_chars = Core.String.to_list "ETAOIN SHRDLU";;
-
 
 let rec often_char input frequents cnt = 
 match frequents with
 | [] -> cnt
-| h::t -> often_char input t (cnt + (Core.String.count input ~f:(fun c -> ((Stdlib.Char.uppercase_ascii c) = h)) ))
+| h::t -> often_char input t (cnt + (String.count input ~f:(fun c -> phys_equal (Char.uppercase c) h) ))
 ;;
 
-let ans_cnt = often_char ans common_chars 0;;
+let ans_cnt = often_char ans common_chars 0
+;;
+
 
 (* Cryptokit solution *)
 open Cryptokit
@@ -51,7 +51,43 @@ let hex s = transform_string (Hexa.decode()) s
 let hexbytes s = Bytes.of_string (hex s)
 ;;
 
-let xorme = Bytes.make 34 'X' in
-xor_bytes (hexbytes raw) 0 xorme 0 34; 
-Printf.printf "%s\n" (Bytes.to_string xorme)
+type cyxor ={ freq: int ; key: char ; plain: string }
+;;
+
+let rec get_maxF lst = 
+match lst with
+| [] -> []
+| a :: [] -> [a]
+| a :: b :: [] -> if a.freq >= b.freq then [a] else [b]
+| a :: b :: t -> if a.freq >= b.freq then get_maxF (a :: t) else get_maxF (b :: t)
+;; 
+
+let rec sort_cyxor lst =
+   match lst with
+     [] -> []
+   | head :: tail -> insert head (sort_cyxor tail)
+ and insert elt lst =
+   match lst with
+     [] -> [elt]
+   | head :: tail -> if elt.freq <= head.freq then elt :: lst else head :: insert elt tail
+ ;;
+
+let get_xor_char rawhx first_key last_key =
+let len = (String.length rawhx) / 2 in
+let lst = ref [] in
+let aux () =
+for i = first_key to last_key do
+    let xor_key = (Core.Char.of_int_exn i) in
+    let xorme = Bytes.make len xor_key in
+    xor_bytes (hexbytes rawhx) 0 xorme 0 len;
+    let plain = Bytes.to_string xorme in
+    let ans = {freq = (often_char plain common_chars 0); key = xor_key; plain = plain} in
+    lst := (!lst @ [ans])
+done
+  in aux ();
+  List.rev !lst
+;;
+
+(* I'm presuming that the correct plaintext has the most occurrences of our common_chars *)
+let best_guess = get_xor_char raw 0x48 0x68 |> sort_cyxor |> get_maxF
 ;;
