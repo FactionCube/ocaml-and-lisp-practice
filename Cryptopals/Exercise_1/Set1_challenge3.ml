@@ -51,9 +51,11 @@ let hex s = transform_string (Hexa.decode()) s
 let hexbytes s = Bytes.of_string (hex s)
 ;;
 
+(* Record to store metadata and plaintext of the decipherment.  *)
 type cyxor ={ freq: int ; key: char ; plain: string }
 ;;
 
+(* Get the list element for the highest frequency count. *)
 let rec get_maxF lst = 
 match lst with
 | [] -> []
@@ -62,6 +64,7 @@ match lst with
 | a :: b :: t -> if a.freq >= b.freq then get_maxF (a :: t) else get_maxF (b :: t)
 ;; 
 
+(* Sort a list according to increasing frequency count. *)
 let rec sort_cyxor lst =
    match lst with
      [] -> []
@@ -72,12 +75,14 @@ let rec sort_cyxor lst =
    | head :: tail -> if elt.freq <= head.freq then elt :: lst else head :: insert elt tail
  ;;
 
+(* Generate a range of plaintext results, each a result of solving
+   the XOR for an instance from a range of monotonically increasing key bytes. *)
 let get_xor_char rawhx first_key last_key =
 let len = (String.length rawhx) / 2 in
 let lst = ref [] in
 let aux () =
 for i = first_key to last_key do
-    let xor_key = (Core.Char.of_int_exn i) in
+    let xor_key = (Char.of_int_exn i) in
     let xorme = Bytes.make len xor_key in
     xor_bytes (hexbytes rawhx) 0 xorme 0 len;
     let plain = Bytes.to_string xorme in
