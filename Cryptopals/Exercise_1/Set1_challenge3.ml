@@ -53,7 +53,7 @@ let hexbytes s = Bytes.of_string (hex s)
 ;;
 
 (* Record to store metadata and plaintext of the decipherment.  *)
-type cyxor ={ freq: int ; key: char ; plain: string }
+type cyxor ={ freq: int ; key: char ; plain: string ; cipher: string }
 ;;
 
 (* Get the list element for the highest frequency count.  I'm going to place 
@@ -88,16 +88,49 @@ for i = first_key to last_key do
     let xorme = Bytes.make len xor_key in
     xor_bytes (hexbytes rawhx) 0 xorme 0 len;
     let plain = Bytes.to_string xorme in
-    let ans = {freq = (often_char plain common_chars 0); key = xor_key; plain = plain} in
+    let ans = {freq = (often_char plain common_chars 0); key = xor_key; plain = plain; cipher = rawhx } in
     lst := (!lst @ [ans])
 done
   in aux ();
   List.rev !lst
 ;;
 
-(* I'm presuming that the correct plaintext has the most occurrences of our common_chars *)
-let best_guess = get_xor_char raw 0x20 0x7e |> sort_cyxor |> get_maxF
+
+let print_cyxor c = 
+Printf.printf "\tFreq:- %i  Key:- %c \n\tPlain:- %s \n\tCipher:- %s \n" c.freq c.key c.plain c.cipher
 ;;
 
+(* I'm presuming that the correct plaintext has the most occurrences of our common_chars *)
+let best_guess = get_xor_char raw 0x20 0x7e |> sort_cyxor |> get_maxF 
+  in print_cyxor (List.hd_exn best_guess)
+;;
+
+
 (* val best_guess : cyxor list =
-  [{freq = 23; key = 'X'; plain = "Cooking MC's like a pound of bacon"}]   *)
+  [{freq = 23; key = 'X'; plain = "Cooking MC's like a pound of bacon"}]   
+
+val print_cyxor : cyxor -> unit = <fun>
+	Freq:- 23  Key:- X 
+	Plain:- Cooking MC's like a pound of bacon 
+	Cipher:- 1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736 
+- : unit = ()
+  
+  *)
+
+
+(* Here's Challenge 4 from Exercise 1. *)
+
+let cipherlist = In_channel.read_lines "./4.txt" in
+let best = ref [] in
+let aux () =
+  List.iter ~f:(fun a -> best := !best @ (get_maxF (get_xor_char a 0x20 0x7e))) cipherlist
+  in aux ();
+  print_cyxor (List.hd_exn (get_maxF !best))
+  (* get_maxF !best *)
+;;
+
+(*	Freq:- 22  Key:- 5 
+	Plain:- Now that the party is jumping
+ 
+	Cipher:- 7b5a4215415d544115415d5015455447414c155c46155f4058455c5b523f 
+*)

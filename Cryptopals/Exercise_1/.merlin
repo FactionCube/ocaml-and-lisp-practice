@@ -1,0 +1,15 @@
+S /home/user/.opam/4.09.1/lib/**
+S ./**
+
+S /home/user/.opam/4.09.1/lib/graphlib
+B /home/user/.opam/4.09.1/lib/graphlib
+
+S /home/user/.opam/4.09.1/lib/core_kernel
+B /home/user/.opam/4.09.1/lib/core_kernel
+
+S /home/user/.opam/4.09.1/lib/core
+B /home/user/.opam/4.09.1/lib/core
+
+PKG graphlib
+PKG core_kernel
+PKG core
