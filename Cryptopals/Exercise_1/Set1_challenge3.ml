@@ -53,7 +53,7 @@ let hexbytes s = Bytes.of_string (hex s)
 ;;
 
 (* Record to store metadata and plaintext of the decipherment.  *)
-type cyxor ={ freq: int ; key: char ; plain: string ; cipher: string }
+type cyxor = { freq: int ; key: char ; plain: string ; cipher: string }
 ;;
 
 (* Get the list element for the highest frequency count.  I'm going to place 
@@ -101,7 +101,7 @@ Printf.printf "\tFreq:- %i  Key:- %c \n\tPlain:- %s \n\tCipher:- %s \n" c.freq c
 ;;
 
 (* I'm presuming that the correct plaintext has the most occurrences of our common_chars *)
-let best_guess = get_xor_char raw 0x20 0x7e |> sort_cyxor |> get_maxF 
+let best_guess = get_xor_char raw 0x20 0x7e |> get_maxF 
   in print_cyxor (List.hd_exn best_guess)
 ;;
 
