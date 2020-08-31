@@ -12,8 +12,6 @@
 
 (defparameter *struct-address* 0x201020)
 
-;; This guy isn't working yet, at least I amnot seeing the
-;; printed msg in 'incident';.
 (defmethod call-return (name ptr ret)
   (when 
     (and (= ptr *struct-address*) (not (points-to-null ret)))
