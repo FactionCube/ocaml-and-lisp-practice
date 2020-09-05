@@ -5,6 +5,9 @@
 
 typedef unsigned char byte;
 
+
+unsigned int blah[4] = {0xDDDDDDDD, 0xCCCCCCCC, 0xBBBBBBBB, 0xAAAAAAAA};
+
 struct foo_t {
 	unsigned int x;
 	unsigned int y;
@@ -45,6 +48,10 @@ int main () {
 	set_struct_b ( coo);
 
 	printf("boo.x = %x  coo.x = %x\n", boo->x, coo->x);
+
+	printf("%08x  %08x  %08x  %08x\n", blah[0], blah[1], blah[2], blah[3]);
+
+	printf("Done\n");
 
 	free (boo);
 	free (coo);
