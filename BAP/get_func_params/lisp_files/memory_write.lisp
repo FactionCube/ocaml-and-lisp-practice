@@ -1,3 +1,4 @@
+;; I did try to add a block of memory, using `memset`, but that didn't work.
 (defparameter *my-special-address0* 0x201010)
 (defparameter *my-special-address1* 0x201011)
 (defparameter *my-special-address2* 0x201012)
