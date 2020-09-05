@@ -12,6 +12,7 @@
   posix
   entry
   memory_read
+  memory_write
 )
 
 (option primus-lisp-add "./lisp_files")
@@ -20,17 +21,20 @@
         run)
 
 (option primus-lisp-channel-redirect
-  <stdin>:$prefix/stdin
-  <stdout>:$prefix/stdout)
+  <stdin>:${prefix}/stdin
+  <stdout>:${prefix}/stdout
+  <stderr>:${prefix}/stderr
+  )
 
 (option report-progress)
 (option log-dir log)
 
 (option run-entry-points
-	${entry-pointsA}
-	${entry-pointsB}
-	${entry-pointsC}
-	${entry-pointsD}
+	${entry-points}
+;;	${entry-pointsA}
+;;	${entry-pointsB}
+;;	${entry-pointsC}
+;;	${entry-pointsD}
 	)
 (option constant-tracker-enable)
 
@@ -45,6 +49,8 @@
   lisp-message
   stored
   written
+;;  read
+  loaded
   )
 
 (option api-path "./api")
