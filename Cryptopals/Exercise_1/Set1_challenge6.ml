@@ -30,5 +30,57 @@ let res = List.fold2_exn woklst thislst ~init:start
     in res
 (* - : int = 37 *)
 
+let cipher_string = In_channel.read_all "./6.txt"
+;;
+
+let ans cipherstr =
+let ham_lst = ref [] in
+for keysz = 1 to 40 do
+(* let keysz = 5 in  *)
+   let fst = Stdlib.String.sub cipherstr 0 keysz and snd = Stdlib.String.sub cipherstr keysz keysz
+  in
+    let flst = String.to_list fst and slst = String.to_list snd in
+    let start = ham_of_xored_bytes '\000' '\000' in 
+    let ham = List.fold2_exn flst slst ~init:start
+        ~f:(fun s l1 l2 -> s + (ham_of_xored_bytes l1 l2  ) ) in
+    let norm =  ( float_of_int ham /. float_of_int keysz ) in 
+    ham_lst := (keysz, norm) :: !ham_lst ;
+    printf "   %3.2f " norm; 
+    done;
+    !ham_lst
+
+
+let get_ham_list = ans cipher_string
+
+let rec insert (x : (int * float) ) (l : (int * float) list) =
+    match l,x with 
+    | [],x -> [x]
+    | ((k1,v1)::t) , (ky,vl) ->  
+        if Float.compare v1 vl >= 0 
+            then x :: (k1,v1) :: t
+            else (k1,v1) :: insert x t 
+
+
+let rec sort (l : (int * float) list) =
+    match l with 
+    | [] -> []
+    | h::t -> insert h (sort t)
+
+let print_pair x = 
+    match x with 
+    | Some (k,v) -> Printf.printf "key length: %i  |hamming|: %f\n" k v
+    | None -> print_string "Empty keyval\n"
+
+;;
+
+let sorted = sort get_ham_list in
+    let keyval = List.hd sorted in 
+        print_pair keyval; keyval
+;;
+
+let arr = String.to_array cipher_string in 
+    let matrix = Array.make_matrix 3 1300 arr in
+        let transpose = Array.transpose matrix in transpose
+
 ;;
 
