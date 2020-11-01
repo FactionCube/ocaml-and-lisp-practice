@@ -83,4 +83,13 @@ let arr = String.to_array cipher_string in
         let transpose = Array.transpose matrix in transpose
 
 ;;
+(* This might be fruitful? *)
+arr;;
+- : char array = [|'1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'|]
+
+let bigarr = Bigarray.Array1.of_array Bigarray.Char c_layout arr;;
+
+(* val bigarr : (char, int8_unsigned_elt, c_layout) Array1.t = <abstr>  *)
+Bigarray.Array1.size_in_bytes bigarr;;
+(* - : int = 9 *)
 
