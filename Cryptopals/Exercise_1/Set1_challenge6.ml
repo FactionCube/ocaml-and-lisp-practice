@@ -84,12 +84,42 @@ let arr = String.to_array cipher_string in
 
 ;;
 (* This might be fruitful? *)
-arr;;
-- : char array = [|'1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'|]
+let ninestr = "123456789"
+let ninearr = String.to_array ninestr;;
 
-let bigarr = Bigarray.Array1.of_array Bigarray.Char c_layout arr;;
+(* - : char array = [|'1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'|]  *)
+
+open Bigarray
+
+let bigarr = Array1.of_array Char c_layout ninearr;;
+let genarray = genarray_of_array1 bigarr;;
+let array2d = reshape genarray [|3;3|];;
 
 (* val bigarr : (char, int8_unsigned_elt, c_layout) Array1.t = <abstr>  *)
-Bigarray.Array1.size_in_bytes bigarr;;
+Array1.size_in_bytes bigarr;;
 (* - : int = 9 *)
+Genarray.dims array2d;;
+
+let slice03 = Genarray.slice_left array2d  [|0|];;
+Genarray.get slice03 [|0|];;  (* 1 *)
+Genarray.get slice03 [|1|];;  (* 2 *)
+Genarray.get slice03 [|2|];;  (* 3 *)
+
+let slice13 = Genarray.slice_left array2d  [|1|];;
+Genarray.get slice13 [|0|];;  (* 4 *)
+Genarray.get slice13 [|1|];;  (* 5 *)
+Genarray.get slice13 [|2|];;  (* 6 *)
+
+let slice23 = Genarray.slice_left array2d  [|2|];;
+Genarray.get slice23 [|0|];;  (* 7 *)
+Genarray.get slice23 [|1|];;  (* 8 *)
+Genarray.get slice23 [|2|];;  (* 9 *)
+
+let arrsublft = Genarray.sub_left array2d 0 1;;
+Genarray.dims arrsublft;;
+(* - : int array = [|1; 3|]  *)
+
+Genarray.get arrsublft [|0;0|];;  (* 1 *)
+Genarray.get arrsublft [|0;1|];;  (* 2 *)
+Genarray.get arrsublft [|0;2|];;  (* 3 *)
 
