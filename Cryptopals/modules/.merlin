@@ -1,0 +1,16 @@
+S /home/user/.opam/4.12.0/lib/**
+S ./**
+
+S /home/user/.opam/4.12.0/lib/graphlib
+B /home/user/.opam/4.12.0/lib/graphlib
+
+S /home/user/.opam/4.12.0/lib/core_kernel
+B /home/user/.opam/4.12.0/lib/core_kernel
+
+S /home/user/.opam/4.12.0/lib/core
+B /home/user/.opam/4.12.0/lib/core
+
+PKG graphlib
+PKG core_kernel
+PKG core
+PKG cpal_utils
