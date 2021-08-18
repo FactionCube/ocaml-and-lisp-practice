@@ -5,6 +5,14 @@ module Cpal_utils =
         exception Not_a_hex_character
         exception Value_not_in_range_0_to_0xF
 
+        (* Take a list a convert it to a list of pairs. *)
+        let rec pairs (l : 'a list) =
+        match l with
+          | [] -> []
+          | [_] -> []
+          | a::b::[] -> (a,b) :: pairs []
+          | a::b::tl -> (a,b) :: pairs tl
+
         (* Convert a single digit hex char to it's decimal value. *)
         let hexchar2int (c : char) =
         let open Stdlib in
@@ -85,10 +93,18 @@ module Cpal_utils =
             [] -> [elt]
           | head :: tail -> if elt.freq <= head.freq then elt :: lst else head :: insert elt tail
 
-        let hexbytes s = 
+        let hexbytes (s:string) = 
         let open Cryptokit in
           let hex = transform_string (Hexa.decode()) in 
           Bytes.of_string (hex s)
+
+        let hex = 
+          let open Cryptokit in
+            transform_string (Hexa.decode());;
+
+        let tohex (s:string) = 
+          let open Cryptokit in
+            transform_string (Hexa.encode()) s
 
         (* Generate a range of plaintext results, each a result of solving
           the XOR for an instance from a range of monotonically increasing key bytes. *)
@@ -112,12 +128,133 @@ module Cpal_utils =
         let print_cyxor (c:cyxor)  : unit =
           Printf.printf "\tFreq:- %i  Key:- %c \n\tPlain:- %s \n\tCipher:- %s \n" c.freq c.key c.plain c.cipher
 
+        let print_cyxor_key (c:cyxor) : unit =
+          print_char c.key
+
         (* I'm presuming that the correct plaintext has the most occurrences of our common_chars *)
         let print_best_guess (cypher:string) =
           let best_guess =  
             get_maxF ( get_xor_char cypher 0x20 0x7e ) in 
               print_cyxor (Core.List.hd_exn best_guess)
-  
+
+        let mix plain cipher = 
+        let open Stdlib in
+          let len = Bytes.length cipher in
+          let mixed = Bytes.mapi (fun i c -> 
+            char_of_int (( int_of_char c) lxor ( int_of_char (Bytes.get cipher (i mod len) ))) ) plain
+            in mixed
+
+        (* Hamming number is the count of active bits in a binary number. *)
+        let rec hamming (byt:int) =
+        match byt with 
+        | 0 -> 0
+        | b -> (b land 1) + hamming (b lsr 1)
+
+        (* Take two bytes, XOR them, and calculate the hamming number. *)
+        let ham_of_xored_bytes (a: char) (b: char) =
+          let open Stdint in
+          let aa = Uint8.of_int (int_of_char a) and bb = Uint8.of_int (int_of_char b) in 
+              let ham = Uint8.logxor aa bb |> Uint8.to_int |> hamming
+          in ham
+
+        (* Compute the normalised Hamming Distances for slices across the ciphertext. 
+          If each slice is a segment in a chain, then adding more segments allows 
+          the correct keysize to rise to the lowest hamming distance value.  
+        *)
+        let normal_hamming (cipherstr:string) =
+        let ham_lst = ref [] in
+        let open Stdlib in
+            for keysz = 1 to 40 do
+                let sum = ref 0.0 in
+                for slice = 0 to 39 do         (* Select 40 intervals across the cipher *)
+                (* let keysz = 5 in  *)
+                let fst = String.sub cipherstr (0 + slice) keysz and snd = Stdlib.String.sub cipherstr (keysz + slice) keysz
+                in
+                    let flst = Core.String.to_list fst and slst = Core.String.to_list snd in
+                    let start = ham_of_xored_bytes '\000' '\000' in 
+                    let ham = Core.List.fold2_exn flst slst ~init:start
+                        ~f:(fun s l1 l2 -> s + (ham_of_xored_bytes l1 l2  ) ) in
+                    let norm = !sum +. ( float_of_int ham /. float_of_int keysz ) in 
+                    sum := norm
+                done ;
+                sum := !sum /. 40.0;
+                ham_lst := (keysz, ( !sum /. 4.0) ) :: !ham_lst ;
+                Printf.printf " %i   %3.2f " keysz !sum; 
+            done;
+            !ham_lst
+
+        let rec insert (x : (int * float) ) (l : (int * float) list) =
+            match l,x with 
+            | [],x -> [x]
+            | ((k1,v1)::t) , (ky,vl) ->  
+                if Float.compare v1 vl >= 0 
+                    then x :: (k1,v1) :: t
+                    else (k1,v1) :: insert x t 
+
+
+        let rec sort (l : (int * float) list) =
+            match l with 
+            | [] -> []
+            | h::t -> insert h (sort t)
+
+        let print_pair (x: (int * float) option) : unit = 
+            match x with 
+            | Some (k,v) -> Printf.printf "\n\nSuggested key length: %i  |hamming|: %f\n" k v
+            | None -> print_string "Empty keyval\n"
+
+        (* Use this to extract characters which are a fixed distance apart
+          that distance being the putative keylength, such that the chars
+          collected will be amenable to XOR with a range of key bytes,
+          such that the frequency count of common letters for each key byte
+          can be collected and ranked.   In other words, the byte stream
+          so gathered will be decrypted, via single substitution, to the
+          most likely 'plaintext'.  *)
+        let extract (start:int) (stride:int) (lst: 'a list) =
+        let open Core in
+            let len = List.length lst - start in
+            let smaller = List.sub lst ~pos:start ~len:len in
+            List.filteri smaller ~f:( fun i _ -> (i % stride) = 0 )
+
+        let check_keys (keylength:int) (cypher:string) =
+        let open Core in
+            let aux () =
+            for i = 0 to (keylength - 1) do
+                let str = String.to_list cypher |> extract i keylength |> String.of_char_list |> tohex in
+                let guess0 = get_xor_char str 0x20 0x7e |> get_maxF in 
+                    print_cyxor (List.hd_exn guess0)
+                done in aux ()
+
+        let mix (plain:bytes) (cipher:bytes) = 
+        let open Stdlib in
+          let len = Bytes.length cipher in
+          let mixed = Bytes.mapi (fun i c -> 
+            Char.chr (( Char.code c) lxor ( Char.code (Bytes.get cipher (i mod len) ))) ) plain
+            in mixed
+
+        let decrypt (key:string) (cipher:string) =
+          let open Core in
+          let open Cryptokit in
+          let buf = Bytes.of_string cipher and cip = Bytes.of_string key in 
+          let ans = transform_string (Hexa.encode()) (Bytes.to_string (mix buf cip)) |> hex in ans
+
+        let dump_likely_keysize (cipher:string) : ((int * float) option) =
+        let open Core in
+        let get_ham_list = normal_hamming cipher in
+        let sorted = sort get_ham_list in
+            let keyval = List.hd sorted in 
+                print_pair keyval; keyval
+
+        let dump_key (cipher:string) : unit =
+        let open Core in
+            for stride = 0 to 28 do
+                let column = String.to_list cipher 
+                            |> extract stride 29 
+                            |> String.of_char_list 
+                            |> tohex in      
+                let keychar = get_xor_char column  0x20 0x7e |> get_maxF in
+                print_cyxor_key (List.hd_exn keychar)
+            done
+            ; print_string "\n"
 
   end
 
