@@ -31,17 +31,35 @@ let rec chunk16 (cyphr : string list) : ('a list) =
     | h :: t -> f h :: (chunk16 t)
 ;;
 
+(* chunk16 takes each string and produces a char list:
 
-let rec amake_strings_list (lst: (char list list list)) : (string list list) =
+chunk16 cipher_strings;;
+- : char list list list =
+[[['8'; 'a'; '1'; '0'; '2'; '4'; '7'; 'f'; '9'; '0'; 'd'; '0'; 'a'; '0'; '5';
+   '5'];
+  ['3'; '8'; '8'; '8'; '8'; 'a'; 'd'; '6'; '2'; '0'; '5'; '8'; '8'; '2'; '1';
+   '9'];
+  ['6'; 'f'; '5'; 'f'; '6'; 'd'; '0'; '5'; 'c'; '2'; '1'; 'e'; 'c'; '8'; 'd';
+   'c'];
+  ['a'; '0'; 'c'; 'b'; '0'; 'b'; 'e'; '0'; '2'; 'c'; '3'; 'f'; '8'; 'b'; '0';
+   '9'];
+  ['e'; '3'; '8'; '2'; '9'; '6'; '3'; 'f'; '4'; '4'; '3'; 'a'; 'a'; '5'; '1';
+   '4'];
+etc.
+
+*)
+
+
+let rec make_strings_list (lst: (char list list list)) : (string list list) =
 let open Core in
     let f x = String.of_char_list x in
     match lst with
     | [] -> []
     | [l] -> Stdlib.List.map f l :: []
-    | h :: t -> Stdlib.List.map f h :: (amake_strings_list t)
+    | h :: t -> Stdlib.List.map f h :: (make_strings_list t)
 ;;
 
-let all_lists = amake_strings_list ( chunk16 cipher_strings )
+let all_lists = make_strings_list ( chunk16 cipher_strings )
 ;;
 (*
 val all_lists : string list list =
