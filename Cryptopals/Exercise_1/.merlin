@@ -13,6 +13,7 @@ B /home/user/.opam/4.12.0/lib/stdint
 S /home/user/.opam/4.12.0/lib/cryptokit
 B /home/user/.opam/4.12.0/lib/cryptokit
 
+S ../modules
 
 PKG cryptokit
 PKG cpal_utils
