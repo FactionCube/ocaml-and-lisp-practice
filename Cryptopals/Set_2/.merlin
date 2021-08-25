@@ -1,0 +1,22 @@
+S /home/user/.opam/4.12.0/lib/**
+S ./**
+
+S /home/user/.opam/4.12.0/lib/core_kernel
+B /home/user/.opam/4.12.0/lib/core_kernel
+
+S /home/user/.opam/4.12.0/lib/core
+B /home/user/.opam/4.12.0/lib/core
+
+S /home/user/.opam/4.12.0/lib/stdint
+B /home/user/.opam/4.12.0/lib/stdint
+
+S /home/user/.opam/4.12.0/lib/cryptokit
+B /home/user/.opam/4.12.0/lib/cryptokit
+
+S ../modules
+
+PKG cryptokit
+PKG cpal_utils
+PKG core_kernel
+PKG core
+PKG stdint
