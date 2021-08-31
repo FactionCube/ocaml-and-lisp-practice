@@ -23,13 +23,11 @@ let open Core in
 let enc_str = ref "" in
 match cypher with
 | [] -> []
-| [a] ->        Printf.printf "%d " (List.hd_exn !iv);
-                iv := (computeXor !iv a); 
+| [a] ->        iv := (computeXor !iv a); 
                 enc_str := encrypt !iv key;
                 iv := str_2_intlst !enc_str;
                 !enc_str :: (cbc_enc iv key [])
-| a :: t ->     Printf.printf "%d " (List.hd_exn !iv);
-                iv := computeXor !iv a; 
+| a :: t ->     iv := computeXor !iv a; 
                 enc_str := encrypt !iv key;
                 iv := str_2_intlst !enc_str;
                 !enc_str :: (cbc_enc iv key t)
