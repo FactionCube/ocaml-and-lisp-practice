@@ -2,7 +2,7 @@
 module Cpal_utils =
   struct
         (* Convert a hexadecimal character to its ASCII hex value. *) 
-        exception Not_a_hex_character
+        exception Not_a_hex_character of (unit)
         exception Value_not_in_range_0_to_0xF
 
         (* Take a list a convert it to a list of pairs. *)
@@ -14,13 +14,13 @@ module Cpal_utils =
           | a::b::tl -> (a,b) :: pairs tl
 
         (* Convert a single digit hex char to it's decimal value. *)
-        let hexchar2int (c : char) =
+        let hexchar2int (c : char) = 
         let open Stdlib in
           match c with
           | '0' .. '9' -> Char.code c - 48
           | 'a' .. 'f' -> Char.code c - 87
           | 'A' .. 'F' -> Char.code c - 55
-          | _          -> raise Not_a_hex_character
+          | _          -> raise (Not_a_hex_character (Printf.printf "Bad character is:  %c\n" c )) 
 
         (* Convert the decimal value of a HEX character to an ASCII character. *)
         (* Same as function above, but using Core.    
@@ -49,7 +49,7 @@ module Cpal_utils =
         let sal = hxch2i_lst (String.to_list sa) and sbl = hxch2i_lst (String.to_list sb) in
         let xor = List.map2_exn ~f:(fun a b -> a lxor b) sal sbl in
         i2hxch_lst xor |> String.of_char_list
-
+a
         (* a b -> ab, logically. *)
         let cram (a : int) (b : int) = (a lsl 4) lxor b
 
