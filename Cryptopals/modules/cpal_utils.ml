@@ -49,7 +49,7 @@ module Cpal_utils =
         let sal = hxch2i_lst (String.to_list sa) and sbl = hxch2i_lst (String.to_list sb) in
         let xor = List.map2_exn ~f:(fun a b -> a lxor b) sal sbl in
         i2hxch_lst xor |> String.of_char_list
-a
+        
         (* a b -> ab, logically. *)
         let cram (a : int) (b : int) = (a lsl 4) lxor b
 
