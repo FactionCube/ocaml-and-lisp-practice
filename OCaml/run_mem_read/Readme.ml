@@ -1,0 +1,1 @@
+This is my first shot at opening a /proc/pid/maps file, searching for a specific memory segment name, and then extracting the memory to a disk file.  Still needs work, so don't take it as either well-written OCaml code, or finished.

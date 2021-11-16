@@ -1,0 +1,5 @@
+(executable
+   (name        mem_read)
+   (libraries   core re fmt)
+   (lint (pps ppx_js_style -annotated-ignores -styler -pretty -dated-deprecation))
+)
