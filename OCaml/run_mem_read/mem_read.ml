@@ -15,16 +15,16 @@ let run_ps process_name =
               cmd n
     
 (* Collect the process name to examine. *)
-let filename_param =
+(* let filename_param =
   let open Core.Command.Param in anon ("filename" %: string)
-
+*)
 
 
 let command =
   let open Core in 
   Command.basic
     ~summary: "Gather the PROCESS ID of a given, running process name."
-    ~readme:(fun () -> "Per exempla:\n\t'mem_read boinc'\n")
+    ~readme:(fun () -> "Per exempla:\n\t'mem_read sleep [heap]'\n")
     Command.Param.(
       both
       (anon ("process-name" %: string))
@@ -40,15 +40,22 @@ let () =
 
 
 (* open an in_channel on a file. *)
-let cat_stdout infile = 
+(*let cat_stdout infile = 
   let errstat = Unix.stat infile in
-    if Sys.file_exists infile && (errstat.Unix.st_size <> 0)
-                then Core.Unix.open_process_in ("cat "^infile^" 2> /dev/null")
-                else failwith "No viable input file."
+  if Sys.file_exists infile && (errstat.Unix.st_size <> 0) then
+    Core.Unix.open_process_in ("cat "^infile^" 2> /dev/null")
+  else 
+    failwith ("No viable input file: " ^ infile)  (* Include infile in the error message *)
+*)
 
-
+    let cat_stdout infile = 
+      if Sys.file_exists infile then
+        Core.Unix.open_process_in ("cat "^infile^" 2> /dev/null")
+      else 
+        failwith ("No viable input file: " ^ infile)
+    
 (* open an in_channel on the output file run by 'let () ' above. *)
-let ic_stdout = cat_stdout "./local.stdout"
+let ic_stdout = cat_stdout "./local.run_ps.stdout"
 
 (* gather the content of the in_channel file, i.e. the PID. *)
 let get_pid boinc_ic =
@@ -60,12 +67,12 @@ let get_pid boinc_ic =
       Failure _ -> -99
   
 (* convert 'Some x' to just 'x'. *)  
-let un_option (x: int option) : int = 
+(* let un_option (x: int option) : int = 
   match x with
   | Some a -> a
   | None -> failwith "Looks like the option you handed me was None."
 ;;
-
+*)
 let pid = get_pid ic_stdout
 
 let check_pid (pid' : int) : unit = 
@@ -82,6 +89,33 @@ let inlst = get_maps_lst pid
 let myregex = Re.Posix.compile_pat {|([0-9A-Fa-f]+)-([0-9A-Fa-f]+) ([-r])([-wxp0-9A-Fa-f :]+)  ([]a-z-A-Z0-9._/( )[]+)|}
 
 let get_subs regex map_line = Re.exec regex map_line
+
+
+(* Assuming you have a list of map lines called `inlst` *)
+(*
+let print_subs_from_map_lines regex map_lines =
+  List.iter (fun map_line ->
+    try
+      let subs = get_subs regex map_line in
+      Printf.printf "Matched line: %s\n" map_line;
+      Printf.printf "Groups:\n";
+      (* Assuming you know the number of groups, e.g., 6 *)
+      let num_groups = 6 in  (* Change this to the actual number of groups in your regex *)
+      for i = 0 to num_groups - 1 do
+        Printf.printf "  Group %d: %s\n" i (Re.Group.get subs i)
+      done
+    with
+    | _ -> Printf.printf "No match for line: %s\n" map_line  (* Handle no match case *)
+  ) map_lines;;
+*)
+(* Now call the function with your regex and the list of map lines *)
+(*print_subs_from_map_lines myregex inlst; *)
+
+(* Now call the function with your regex and the list of map lines *)
+(*print_subs_from_map_lines myregex inlst *)
+
+
+
 
 let g subs = let triple = (Re.Group.get subs 1, Re.Group.get subs 2, Re.Group.get subs 5) in triple
 
@@ -104,11 +138,22 @@ let triples = get_mem_regions myregex readables g
 (* Select some segment of the memory map. *)
 let heap_seg = List.filter (fun (_,_,x) -> String.equal x Sys.argv.(2)) triples;;
 
+(* Check the size of heap_seg *)
+let heap_seg_size = List.length heap_seg in
+Printf.printf "Size of heap_seg: %d\n" heap_seg_size;
+
+(* Print the contents of heap_seg *)
+Printf.printf "Contents of heap_seg:\n";
+List.iter (fun (start, finish, permissions) ->
+  Printf.printf "Start: %s, Finish: %s, Permissions: %s\n" start finish permissions
+) heap_seg
+
+
 (* Now that we have collected data from the maps file, let's look into extracting memory 
   from the running process. *)
 
 (* unused since the tuples were small. *)  
-type couple = { a : int; b: int }
+(* type couple = { a : int; b: int } *)
 
 let fst (a,_,_) = a and snd (_,b,_) = b and one (a,_) = a and two (_,b) = b
 
