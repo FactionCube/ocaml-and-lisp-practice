@@ -1,4 +1,4 @@
-;; Use this lisp file if you wish to over-ride the parameters which occur within test.c
+;; Use this lisp file if you wish to override the parameters which occur within test.c
 ;; for func0.
 (defun entry-func0 () 
   (declare (external entry-func0)) 
