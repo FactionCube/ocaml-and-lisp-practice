@@ -135,8 +135,8 @@ let rec get_mem_regions regex lst f =
   (*let open Re in*)
   match lst with
   | [] -> []
-  | [x] -> (f (get_subs regex x) )  :: get_mem_regions regex [] g
-  | h::t -> (f (get_subs regex h) )  :: get_mem_regions regex t g
+  | [x] -> (f (get_subs regex x) )  :: get_mem_regions regex [] f
+  | h::t -> (f (get_subs regex h) )  :: get_mem_regions regex t f
 
 let is_readables_opt subs n =
   (*let open Re in*)
