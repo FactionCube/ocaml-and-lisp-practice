@@ -143,7 +143,14 @@ let is_readables_opt subs n =
   match subs with
     | Some r -> if String.equal (Re.Group.get r n) "r" then true else false
     | None -> false  
-let readables = List.filter (fun x -> if x != "" then is_readables_opt (Re.exec_opt myregex x ) 3 else false) inlst
+let readables =
+  List.filter
+    (fun x ->
+      if not (String.equal x "") then
+        is_readables_opt (Re.exec_opt myregex x) 3
+      else
+        false)
+    inlst
 
 let triples = get_mem_regions myregex readables g
 
