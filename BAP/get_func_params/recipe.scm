@@ -3,8 +3,8 @@
 ;; with those which you set in the entry.lisp file.
 (parameter entry-pointsA entry-func0 "where to search")
 (parameter entry-pointsB main "")
-(parameter entry-pointsC struct_set_a "")
-(parameter entry-pointsD struct_set_b "")
+(parameter entry-pointsC set_struct_a "")
+(parameter entry-pointsD set_struct_b "")
 (parameter entry-points all-subroutines "where to search")
 (parameter optimization 0 "optimization level")
 
