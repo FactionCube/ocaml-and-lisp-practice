@@ -86,7 +86,19 @@ let get_maps_lst (pid' : int) : string list =
     Core.In_channel.read_lines ("/proc/"^pid_string^"/maps")
 
 let inlst = get_maps_lst pid
-let myregex = Re.Posix.compile_pat {|([0-9A-Fa-f]+)-([0-9A-Fa-f]+) ([-r])([-wxp0-9A-Fa-f :]+)  ([]a-z-A-Z0-9._/( )[]+)|}
+(*
+   The original regular expression attempted to capture the region addresses,
+   the read permission flag and the pathname from a line in `/proc/[pid]/maps`.
+   It contained the fragment `([]a-z-A-Z0-9._/( )[]+)` which is an invalid
+   POSIX character class and causes the regex compilation to fail.
+
+   We replace it with a simpler expression that still captures the desired
+   fields.  Group 1 is the start address, group 2 the end address, group 3 the
+   read flag (either 'r' or '-'), and group 5 the pathname.
+*)
+let myregex =
+  Re.Posix.compile_pat
+    {|([0-9A-Fa-f]+)-([0-9A-Fa-f]+)[[:space:]]+([r-])([rwxps-]{3})[[:space:]]+[0-9A-Fa-f]+[[:space:]]+[0-9A-Fa-f:]+[[:space:]]+[0-9]+[[:space:]]+(.+)|}
 
 let get_subs regex map_line = Re.exec regex map_line
 
